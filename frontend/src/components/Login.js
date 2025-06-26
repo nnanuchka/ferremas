@@ -17,20 +17,23 @@ function Login() {
         password,
       });
 
-      if (response.data) {
-        // Guardar el usuario logueado en localStorage
-        localStorage.setItem('usuario', JSON.stringify(response.data));
+      const data = response.data;
+      console.log("LOGIN RESPONSE:", data); // 👈 PARA VERIFICAR
 
-        // Redirigir según el email
-        if (response.data.email_usuario === 'daniel@gmail.com') {
-          navigate('/CategoryList');
-        } else if (response.data.email_usuario === 'eduardo@gmail.com') {
-          navigate('/StockPanel');
+      if (data) {
+        localStorage.setItem('usuario', JSON.stringify(data));
+
+        // ✅ REDIRECCIÓN BASADA EN CORREO
+        if (data.usuario.email_usuario === 'daniel@gmail.com') {
+          navigate('/categorias');  // Cliente → CategoryList
+        } else if (data.usuario.email_usuario === 'eduardo@gmail.com') {
+          navigate('/vendedor');    // Vendedor → StockPanel
         } else {
-          navigate('/');
+          setError("Correo no reconocido");
         }
       }
     } catch (err) {
+      console.error("Error al iniciar sesión:", err);
       setError('Credenciales incorrectas');
     }
   };

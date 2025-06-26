@@ -27,7 +27,10 @@ export default function Header() {
         >
           Inicio
         </button>
-        <button className="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">
+        <button
+          onClick={() => navigate("/carrito")}    // ← Aquí redirige al carrito
+          className="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100"
+        >
           Carrito
         </button>
 

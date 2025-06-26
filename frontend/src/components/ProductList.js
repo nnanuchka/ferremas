@@ -1,18 +1,57 @@
-// src/components/ProductList.jsx
 import React, { useEffect, useState } from "react";
-import Header from "./Header"; // Asegúrate de que la ruta sea correcta
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Header from "./Header"; 
 
 export default function ProductList() {
   const [productos, setProductos] = useState([]);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:3000/api/productos")
-      .then((res) => res.text())
+      .then((res) => res.json())
       .then((data) => {
-        setProductos(JSON.parse(data));
+        setProductos(data);
       })
       .catch((error) => console.error("Error al obtener productos:", error));
   }, []);
+
+  // Leer usuario logueado desde localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('usuario');
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error parseando usuario en localStorage:", e);
+      }
+    }
+  }, []);
+
+  // agregar al carrito
+  const handleAddCart = async (producto) => {
+    if (!user) {
+      alert('Debes iniciar sesión para agregar productos al carrito');
+      navigate('/login');
+      return;
+    }
+    if (user.tipo !== 'cliente') {
+      alert('Solo los clientes pueden agregar productos al carrito');
+      return;
+    }
+    try {
+      await axios.post("http://localhost:3000/api/carrito", {
+        id_usuario: user.usuario.id_usuario,
+        id_producto: producto.id_producto,
+        cantidad: 1
+      });
+      alert('Producto agregado al carrito');
+    } catch (err) {
+      console.error("Error al agregar al carrito:", err);
+      alert('No se pudo agregar al carrito');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -43,9 +82,7 @@ export default function ProductList() {
                 </p>
                 <button
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
-                  onClick={() =>
-                    console.log(`Agregar al carrito: ${producto.nombre_producto}`)
-                  }
+                  onClick={() => handleAddCart(producto)}
                 >
                   Agregar al carrito
                 </button>
